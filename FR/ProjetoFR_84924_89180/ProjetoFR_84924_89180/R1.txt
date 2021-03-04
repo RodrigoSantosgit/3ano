@@ -1,0 +1,133 @@
+!
+
+!
+version 12.4
+service timestamps debug datetime msec
+service timestamps log datetime msec
+no service password-encryption
+!
+hostname R1
+!
+boot-start-marker
+boot-end-marker
+!
+!
+no aaa new-model
+memory-size iomem 5
+no ip icmp rate-limit unreachable
+ip cef
+!
+!
+!
+!
+no ip domain lookup
+ip auth-proxy max-nodata-conns 3
+ip admission max-nodata-conns 3
+!
+ipv6 unicast-routing
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+ip tcp synwait-time 5
+! 
+!
+!
+!
+!
+interface FastEthernet0/0
+ ip address 10.140.6.5 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+ ipv6 address 2001:91:0:6::5/126
+ ipv6 rip proc1 enable
+ ipv6 rip proc1 default-information originate
+!
+interface FastEthernet0/1
+ ip address 10.140.6.1 255.255.255.252
+ ip nat inside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+ ipv6 address 2001:91:0:6::1/126
+ ipv6 rip proc1 enable
+ ipv6 rip proc1 default-information originate
+!
+interface FastEthernet0/1.5
+!
+interface FastEthernet1/0
+ ip address 100.10.10.254 255.255.255.252
+ ip nat outside
+ ip virtual-reassembly
+ duplex auto
+ speed auto
+ ipv6 address 2777:7:7:7::2/126
+ ipv6 rip proc1 enable
+ ipv6 rip proc1 default-information originate
+!
+router rip
+ version 2
+ network 10.0.0.0
+ network 100.0.0.0
+!
+ip forward-protocol nd
+ip route 100.0.0.0 255.255.255.0 100.10.10.253
+ip route 192.168.0.0 255.255.254.0 10.140.6.6
+!
+!
+no ip http server
+no ip http secure-server
+ip nat pool PRIVTOPUB 200.124.180.192 200.124.180.207 netmask 255.255.255.240
+ip nat inside source static 10.140.0.1 200.124.180.1
+ip nat inside source static 10.140.1.1 200.124.180.65
+ip nat inside source static 10.140.4.1 200.124.180.129
+ip nat inside source static 10.140.3.1 200.124.180.209
+ip nat inside source static 10.140.2.1 200.124.180.225
+!
+no cdp log mismatch duplex
+ipv6 route 2001:91::/60 2001:91:0:6::2
+ipv6 route 3000:A:A:A::/64 2777:7:7:7::1
+ipv6 router rip proc1
+!
+!
+!
+!
+!
+control-plane
+!
+!
+!
+!
+!
+!
+!
+!
+!
+!
+line con 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line aux 0
+ exec-timeout 0 0
+ privilege level 15
+ logging synchronous
+line vty 0 4
+ login
+!
+!
+end
